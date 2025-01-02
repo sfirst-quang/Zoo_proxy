@@ -347,44 +347,48 @@ class ZooAPIClient {
     }
 
     async doRebusTask(initData, i, rebus, userDataResult, dataAfterResult) {
-        const { dbQuests } = userDataResult.data.dbData.dbQuests;
-        const rebusItems = dbQuests.find((item) => item.key.includes("rebus_"));
-        if (rebusItems && rebusItems.length > 0) {
-            const { quests } = dataAfterResult.data.quests;
-            const rebusItemsCompleted = quests.find((item) => item.key == rebusItems[0].key);
-            if (!rebusItemsCompleted) {
-                if (rebus.key == rebusItems[0].key) {
-                    const payload = { data: [rebus.key, rebus.data] };
-                    const responseCheckQuest = await this.checkQuest(initData, i, payload);
-                    if (responseCheckQuest.success) {
-                        await new Promise((resolve) => setTimeout(resolve, 2000));
-                        const responseClaimQuest = await this.claimQuest(initData, i, payload);
-                        if (responseClaimQuest.success) {
-                            this.log("Làm task Rebus thành công!", "success");
-                        }
-                    }
+        const { dbQuests } = userDataResult.data.dbData;
+        const rebusItem = dbQuests.find((item) => item.key.includes("rebus_"));
+        if (!rebusItem) {
+            return;
+        }
+        const { quests } = dataAfterResult.data;
+        const rebusItemCompleted = quests.find((item) => item.key == rebusItem.key);
+        if (rebusItemCompleted) {
+            return;
+        }
+        if (rebus.key == rebusItem.key) {
+            const payload = { data: [rebus.key, rebus.data] };
+            const responseCheckQuest = await this.checkQuest(initData, i, payload);
+            if (responseCheckQuest.success) {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                const responseClaimQuest = await this.claimQuest(initData, i, payload);
+                if (responseClaimQuest.success) {
+                    this.log("Làm task Rebus thành công!", "success");
                 }
             }
         }
     }
 
     async doRiddleTask(initData, i, riddle, userDataResult, dataAfterResult) {
-        const { dbQuests } = userDataResult.data.dbData.dbQuests;
-        const riddleItems = dbQuests.find((item) => item.key.includes("riddle_"));
-        if (riddleItems && riddleItems.length > 0) {
-            const { quests } = dataAfterResult.data.quests;
-            const riddleItemsCompleted = quests.find((item) => item.key == riddleItems[0].key);
-            if (!riddleItemsCompleted) {
-                if (riddle.key == riddleItems[0].key) {
-                    const payload = { data: [riddle.key, riddle.data] };
-                    const responseCheckQuest = await this.checkQuest(initData, i, payload);
-                    if (responseCheckQuest.success) {
-                        await new Promise((resolve) => setTimeout(resolve, 2000));
-                        const responseClaimQuest = await this.claimQuest(initData, i, payload);
-                        if (responseClaimQuest.success) {
-                            this.log("Làm task Riddle thành công!", "success");
-                        }
-                    }
+        const { dbQuests } = userDataResult.data.dbData;
+        const riddleItem = dbQuests.find((item) => item.key.includes("riddle_"));
+        if (!riddleItem) {
+            return;
+        }
+        const { quests } = dataAfterResult.data;
+        const riddleItemCompleted = quests.find((item) => item.key == riddleItem.key);
+        if (riddleItemCompleted) {
+            return;
+        }
+        if (riddle.key == riddleItem.key) {
+            const payload = { data: [riddle.key, riddle.data] };
+            const responseCheckQuest = await this.checkQuest(initData, i, payload);
+            if (responseCheckQuest.success) {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                const responseClaimQuest = await this.claimQuest(initData, i, payload);
+                if (responseClaimQuest.success) {
+                    this.log("Làm task Riddle thành công!", "success");
                 }
             }
         }
@@ -403,7 +407,7 @@ class ZooAPIClient {
 
     async getTodayQuestAnswer() {
         try {
-            const response = await axios.get("");
+            const response = await axios.get("https://raw.githubusercontent.com/sfirst-quang/Zoo_proxy/refs/heads/main/todayQuest.json");
             if ((response.status = 200)) {
                 return { success: true, data: response.data };
             } else {
@@ -695,7 +699,7 @@ class ZooAPIClient {
                                     //         break;
                                     //     }
                                     // }
-                                    await this.doDailyTask(initData, i, userDataResult, dataAfterResult)
+                                    await this.doDailyTask(initData, i, userDataResult, dataAfterResult);
                                 }
 
                                 const finalData = await this.getUserData(initData, i);
