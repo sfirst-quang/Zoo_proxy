@@ -682,8 +682,10 @@ class ZooAPIClient {
                                 }
 
                                 await this.handleAutoFeed(initData, i);
-
-                                await this.buyOrUpgradeAnimals(initData, i);
+                                //Only update when coins > 1000
+                                if(hero.coins > 1000) {
+                                    await this.buyOrUpgradeAnimals(initData, i);
+                                }
 
                                 const dataAfterResult = await this.getUserDataAfter(initData, i);
                                 if (dataAfterResult.success) {
