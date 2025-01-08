@@ -346,7 +346,7 @@ class ZooAPIClient {
         }
     }
 
-    async doRebusTask(initData, i, rebus, userDataResult, dataAfterResult) {
+    async doRebusTask(initData, i, userDataResult, dataAfterResult) {
         const { dbQuests } = userDataResult.data.dbData;
         const rebusItem = dbQuests.find((item) => item.key.includes("rebus_"));
         if (!rebusItem) {
@@ -357,20 +357,18 @@ class ZooAPIClient {
         if (rebusItemCompleted) {
             return;
         }
-        if (rebus.key == rebusItem.key) {
-            const payload = { data: [rebus.key, rebus.data] };
-            const responseCheckQuest = await this.checkQuest(initData, i, payload);
-            if (responseCheckQuest.success) {
-                await new Promise((resolve) => setTimeout(resolve, 2000));
-                const responseClaimQuest = await this.claimQuest(initData, i, payload);
-                if (responseClaimQuest.success) {
-                    this.log("Làm task Rebus thành công!", "success");
-                }
+        const payload = { data: [rebusItem.key, rebusItem.checkData] };
+        const responseCheckQuest = await this.checkQuest(initData, i, payload);
+        if (responseCheckQuest.success) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            const responseClaimQuest = await this.claimQuest(initData, i, payload);
+            if (responseClaimQuest.success) {
+                this.log("Làm task Rebus thành công!", "success");
             }
         }
     }
 
-    async doRiddleTask(initData, i, riddle, userDataResult, dataAfterResult) {
+    async doRiddleTask(initData, i, userDataResult, dataAfterResult) {
         const { dbQuests } = userDataResult.data.dbData;
         const riddleItem = dbQuests.find((item) => item.key.includes("riddle_"));
         if (!riddleItem) {
@@ -381,28 +379,27 @@ class ZooAPIClient {
         if (riddleItemCompleted) {
             return;
         }
-        if (riddle.key == riddleItem.key) {
-            const payload = { data: [riddle.key, riddle.data] };
-            const responseCheckQuest = await this.checkQuest(initData, i, payload);
-            if (responseCheckQuest.success) {
-                await new Promise((resolve) => setTimeout(resolve, 2000));
-                const responseClaimQuest = await this.claimQuest(initData, i, payload);
-                if (responseClaimQuest.success) {
-                    this.log("Làm task Riddle thành công!", "success");
-                }
+        const payload = { data: [riddleItem.key, riddleItem.checkData] };
+        const responseCheckQuest = await this.checkQuest(initData, i, payload);
+        if (responseCheckQuest.success) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            const responseClaimQuest = await this.claimQuest(initData, i, payload);
+            if (responseClaimQuest.success) {
+                this.log("Làm task Riddle thành công!", "success");
             }
         }
     }
 
     async doDailyTask(initData, i, userDataResult, dataAfterResult) {
-        const responseTodayQuest = await this.getTodayQuestAnswer();
-        if (responseTodayQuest.success) {
-            const rebus = responseTodayQuest.data.rebus;
-            const riddle = responseTodayQuest.data.riddle;
-            await this.doRebusTask(initData, i, rebus, userDataResult, dataAfterResult);
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            await this.doRiddleTask(initData, i, riddle, userDataResult, dataAfterResult);
-        }
+        await this.doRebusTask(initData, i, userDataResult, dataAfterResult);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await this.doRiddleTask(initData, i, userDataResult, dataAfterResult);
+
+        // const responseTodayQuest = await this.getTodayQuestAnswer();
+        // if (responseTodayQuest.success) {
+        //     const rebus = responseTodayQuest.data.rebus;
+        //     const riddle = responseTodayQuest.data.riddle;
+        // }
     }
 
     async getTodayQuestAnswer() {
@@ -681,27 +678,16 @@ class ZooAPIClient {
                                     }
                                 }
 
-                                await this.handleAutoFeed(initData, i);
-                                //Only update when coins > 1000
-                                if(hero.coins > 1000) {
-                                    await this.buyOrUpgradeAnimals(initData, i);
-                                }
-
                                 const dataAfterResult = await this.getUserDataAfter(initData, i);
                                 if (dataAfterResult.success) {
                                     await this.doClaimDailyReward(initData, i, dataAfterResult);
-                                    // const { dailyRewards } = dataAfterResult.data;
-                                    // for (let day = 1; day <= 16; day++) {
-                                    //     if (dailyRewards[day] === "canTake") {
-                                    //         this.log(`Đang nhận phần thưởng ngày ${day}...`, "info");
-                                    //         const claimResult = await this.claimDailyReward(initData, day, i);
-                                    //         if (claimResult.success) {
-                                    //             this.log("Điểm danh hàng ngày thành công!", "success");
-                                    //         }
-                                    //         break;
-                                    //     }
-                                    // }
                                     await this.doDailyTask(initData, i, userDataResult, dataAfterResult);
+                                }
+
+                                await this.handleAutoFeed(initData, i);
+                                //Only update when coins > 1000
+                                if (hero.coins > 1000) {
+                                    await this.buyOrUpgradeAnimals(initData, i);
                                 }
 
                                 const finalData = await this.getUserData(initData, i);
