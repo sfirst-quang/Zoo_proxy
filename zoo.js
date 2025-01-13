@@ -402,18 +402,18 @@ class ZooAPIClient {
         // }
     }
 
-    async getTodayQuestAnswer() {
-        try {
-            const response = await axios.get("https://raw.githubusercontent.com/sfirst-quang/Zoo_proxy/refs/heads/main/todayQuest.json");
-            if ((response.status = 200)) {
-                return { success: true, data: response.data };
-            } else {
-                return { success: false };
-            }
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    }
+    // async getTodayQuestAnswer() {
+    //     try {
+    //         const response = await axios.get("https://raw.githubusercontent.com/sfirst-quang/Zoo_proxy/refs/heads/main/todayQuest.json");
+    //         if ((response.status = 200)) {
+    //             return { success: true, data: response.data };
+    //         } else {
+    //             return { success: false };
+    //         }
+    //     } catch (error) {
+    //         return { success: false, error: error.message };
+    //     }
+    // }
 
     async handleAutoFeed(initData, accountIndex) {
         try {
